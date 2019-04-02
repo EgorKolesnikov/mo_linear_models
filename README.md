@@ -18,3 +18,5 @@
 3) Пиляк Ксения - adagrad
 
 Для начала реализовать базовые версии, чтобы работало. Потом пытаться ускорять.
+
+#### Тестовый датасет взят отсюда: https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv
