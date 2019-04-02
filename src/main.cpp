@@ -1,53 +1,53 @@
-#include "reader.h"
 #include <iostream>
 #include <string.h>
 
+#include "reader.h"
+#include "args.h"
+#include "sgd.h"
 
-enum class AlgoType {
-	sgd,
-	adagrad,
-	ftrl_proximal
-};
-
-
-struct ArgWrap{
-	AlgoType type;
-
-	ArgWrap()
-		: type(AlgoType::sgd)
-	{ }
-};
+using std::string;
+using std::cout;
 
 
-int parse_args(int argc, char * argv[], ArgWrap& args){
-	if(argc == 1){
-		printf("Expected to have at least one argument: ['sgd', 'adagrad', 'ftrl-proximal']\n");
+int _run_sgd(const ArgWrap& args){
+	printf("Running sgd\n");
+
+	TFullDataReader reader(args.input_file_path, true);
+	if(!reader.is_open()){
+		printf("File '%s' not open\n", args.input_file_path);
 		return 1;
 	}
 
-	if(strcmp(argv[1], "sgd") == 0){
-		args.type = AlgoType::sgd;
-	} else if(strcmp(argv[1], "adagrad") == 0) {
-		args.type = AlgoType::adagrad;
-	} else if(strcmp(argv[1], "ftrl-proximal") == 0){
-		args.type = AlgoType::ftrl_proximal;
-	} else {
-		printf("Unknown type '%s'\n", argv[1]);
-		return 2;
-	}
+	reader.load();
+	cout << reader.dataset.size() << "\n";
+	
+	SgdClassification sgd(reader._n_features, 5, 0.01);
+	sgd.train(reader);
 
 	return 0;
 }
 
-int run(const ArgWrap& args){
-	if(args.type == AlgoType::sgd){
-		printf("Running sgd\n");
-	} else if(args.type == AlgoType::adagrad){
-		printf("Running adagrad\n");
-	} else if(args.type == AlgoType::ftrl_proximal){
-		printf("Running ftrl_proximal\n");
-	}
+int _run_adagrad(const ArgWrap& args){
+	printf("Running adagrad\n");
 	return 0;
+}
+
+int _run_ftrl_proximal(const ArgWrap& args){
+	printf("Running ftrl_proximal\n");
+	return 0;
+}
+
+int run(const ArgWrap& args){
+	if(args.algo_type == AlgoType::sgd){
+		return _run_sgd(args);
+	} else if(args.algo_type == AlgoType::adagrad){
+		return _run_adagrad(args);
+	} else if(args.algo_type == AlgoType::ftrl_proximal){
+		return _run_ftrl_proximal(args);
+	}
+
+	printf("Unknown algo type. Terminating.\n");
+	return 1;
 }
 
 
@@ -56,11 +56,13 @@ int main(int argc, char * argv[]){
 	
 	int rc_args = parse_args(argc, argv, args);
 	if(rc_args){
+		cout << usage << "\n";
 		exit(rc_args);
 	}
 
 	int rc_run = run(args);
 	if(rc_run){
+		cout << usage << "\n";
 		exit(rc_run);
 	}
 
