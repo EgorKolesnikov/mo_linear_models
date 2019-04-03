@@ -5,12 +5,17 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
+#include <random>
+#include <chrono> 
 
 using std::cout;
 using std::vector;
 using std::string;
 using std::ifstream;
 using std::istringstream;
+using std::shuffle;
+using std::default_random_engine;
 
 
 struct DatasetEntry {
@@ -45,11 +50,13 @@ public:
 	int _n_entries;
 	int _n_features;
 
-	TAbstractDataReader(char * path, bool is_class_at_the_end);
+	TAbstractDataReader(char * path, bool is_class_at_the_end = true);
 	~TAbstractDataReader();
 
 	// To know, whether private self.inf has been opened successfully
 	bool is_open();
+
+	virtual vector<DatasetEntry> next_batch(size_t size = 32) = 0;
 };
 
 
@@ -58,10 +65,18 @@ class TFullDataReader : public TAbstractDataReader {;
 *	Dummy file reader (just for checking).
 *	Loading full file in memory.
 */
+protected:
+	int _iter;
+
+	void _shuffle();
+	void _restart();
+
 public:
 	vector<DatasetEntry> dataset;
 
 	TFullDataReader(char * path, bool is_class_at_the_end);
+
+	vector<DatasetEntry> next_batch(size_t size = 32);
 
 	// Load full dataset in self.dataset
 	void load();

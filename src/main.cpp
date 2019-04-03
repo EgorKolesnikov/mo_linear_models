@@ -21,8 +21,8 @@ int _run_sgd(const ArgWrap& args){
 	reader.load();
 	cout << reader.dataset.size() << "\n";
 	
-	SgdClassification sgd(reader._n_features, 5, 0.01);
-	sgd.train(reader);
+	SgdClassification sgd(reader._n_features, 5, 0.01, 1.0);
+	sgd.fit(reader);
 
 	return 0;
 }
