@@ -41,7 +41,7 @@ DatasetEntry::DatasetEntry(string& str, bool is_class_at_the_end){
 *	Abstract reader
 */
 
-TAbstractDataReader::TAbstractDataReader(char * path, bool is_class_at_the_end)
+TAbstractDataReader::TAbstractDataReader(string path, bool is_class_at_the_end)
 	: inf(path)
 	, _line("")
 	, _is_class_at_the_end(is_class_at_the_end)
@@ -67,7 +67,7 @@ bool TAbstractDataReader::is_open(){
 *	Full dataset reader
 */
 
-TFullDataReader::TFullDataReader(char * path, bool is_class_at_the_end)
+TFullDataReader::TFullDataReader(string path, bool is_class_at_the_end)
 	: TAbstractDataReader(path, is_class_at_the_end)
 	, _iter(0)
 { 
@@ -105,4 +105,16 @@ vector<DatasetEntry> TFullDataReader::next_batch(size_t size){
 	}
 
 	return batch;
+}
+
+
+vector<double> TFullDataReader::get_labels(){
+	vector<double> labels;
+	labels.reserve(this->dataset.size());
+
+	for(DatasetEntry& e : this->dataset){
+		labels.push_back(e.y);
+	}
+
+	return labels;
 }

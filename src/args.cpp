@@ -3,12 +3,13 @@
 
 const string usage = 
 	"\n"\
-	"Usage: ./lm [train|test] [ALGO] [TASK] [FILE_PATH] [SAVE_MODEL_PATH]\n"\
+	"Usage: ./lm [train|test] [ALGO] [TASK] [DATASET_FILE_PATH] [MODEL_PATH]\n"\
 	" - ALGO: 'sgd' | 'adagrad' | 'ftrl-proximal'\n"
-	" - TASK: 'classification' | 'regression'\n";
+	" - TASK: 'classification' | 'regression'\n"
+	"\n";
 
 
-int _parse_train_args(int argc, char * argv[], ArgWrap& args){
+int _parse_default_args(int argc, char * argv[], ArgWrap& args){
 	if(argc == 2){
 		printf("You need to specify algo type\n");
 		return 2;
@@ -44,18 +45,14 @@ int _parse_train_args(int argc, char * argv[], ArgWrap& args){
 		return 2;
 	}
 
-	args.input_file_path = argv[4];
+	args.data_path = string(argv[4]);
 
 	if(argc == 5){
 		printf("You need to specify model output path\n");
 		return 2;
 	}
 
-	args.save_model_path = argv[5];
-	return 0;
-}
-
-int _parse_test_args(int argc, char * argv[], ArgWrap& args){
+	args.model_path = string(argv[5]);
 	return 0;
 }
 
@@ -66,9 +63,11 @@ int parse_args(int argc, char * argv[], ArgWrap& args){
 	}
 
 	if(strcmp(argv[1], "train") == 0){
-		return _parse_train_args(argc, argv, args);
+		args.stage = Stage::train;
+		return _parse_default_args(argc, argv, args);
 	} else if(strcmp(argv[1], "test") == 0){
-		return _parse_test_args(argc, argv, args);
+		args.stage = Stage::test;
+		return _parse_default_args(argc, argv, args);
 	}
 
 	printf("Expecting to have 'train' or 'test' as first argument. Found: '%s'\n", argv[1]);

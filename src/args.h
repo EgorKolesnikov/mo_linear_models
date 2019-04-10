@@ -11,6 +11,11 @@ using std::string;
 *	TODO: Boost.Options.
 */
 
+enum class Stage {
+	train,
+	test
+};
+
 enum class AlgoType {
 	sgd,
 	adagrad,
@@ -24,17 +29,19 @@ enum class TaskType {
 
 
 struct ArgWrap{
+	Stage stage;
 	AlgoType algo_type;
 	TaskType task_type;
 
-	char * input_file_path;
-	char * save_model_path;
+	string data_path;
+	string model_path;
 
 	ArgWrap()
-		: algo_type(AlgoType::sgd)
+		: stage(Stage::train)
+		, algo_type(AlgoType::sgd)
 		, task_type(TaskType::classification)
-		, input_file_path(NULL)
-		, save_model_path(NULL)
+		, data_path("")
+		, model_path("")
 	{ }
 };
 

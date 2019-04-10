@@ -4,6 +4,7 @@
 #include "reader.h"
 #include "args.h"
 #include "sgd.h"
+#include "util.h"
 
 using std::string;
 using std::cout;
@@ -12,18 +13,33 @@ using std::cout;
 int _run_sgd(const ArgWrap& args){
 	printf("Running sgd\n");
 
-	TFullDataReader reader(args.input_file_path, true);
+	TFullDataReader reader(args.data_path, true);
 	if(!reader.is_open()){
-		printf("File '%s' not open\n", args.input_file_path);
+		printf("File '%s' not open\n", args.data_path.c_str());
 		return 1;
 	}
 
 	reader.load();
-	cout << reader.dataset.size() << "\n";
+	printf("Loaded %d dataset objects\n", int(reader.dataset.size()));
 	
-	SgdClassification sgd(reader._n_features, 5, 0.01, 1.0);
-	sgd.fit(reader);
+	if(args.stage == Stage::train){
+		printf(" * Trainig SGD\n");
+		SgdClassification sgd(reader._n_features, 5, 0.01, 1.0);
+		sgd.fit(reader);
 
+		printf(" * Saving model to '%s'\n", args.model_path.c_str());
+		sgd.save(args.model_path);
+	} else {
+		printf(" * Loading model\n");
+		SgdClassification sgd(reader._n_features, 5, 0.01, 1.0);
+		sgd.load(args.model_path);
+
+		printf(" * Predicting and evaluating\n");
+		double res = sgd.evaluate(reader.dataset);
+		printf(" * Result : %.2f\n", res);
+	}
+
+	printf("All done\n");
 	return 0;
 }
 

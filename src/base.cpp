@@ -37,11 +37,32 @@ bool TAbstractLinearModel::_run_iteration(vector<DatasetEntry>& batch){
 }
 
 void TAbstractLinearModel::save(const string& path){
-	
+	ofstream outf(path);
+	outf << fixed << showpoint << setprecision(5);
+
+	vector<double> hyperplane = this->get_hyperplane();
+	for(int i = 0; i < this->_n_features + 1; ++i){
+		outf << hyperplane[i] << " ";
+	}
+
+	outf.close();
 }
 
 void TAbstractLinearModel::load(const string& path){
-	
+	ifstream inf(path);
+
+	this->w_prev = vector<double>(this->_n_features + 1, 0.0);
+	this->w_cur = vector<double>(this->_n_features + 1, 0.0);
+
+	for(int i = 0; i < this->_n_features + 1; ++i){
+		double w;
+		inf >> w;
+
+		this->w_prev[i] = w;
+		this->w_cur[i] = w;
+	}
+
+	inf.close();
 }
 
 vector<double> TAbstractLinearModel::get_hyperplane(){
@@ -50,9 +71,28 @@ vector<double> TAbstractLinearModel::get_hyperplane(){
 
 void TAbstractLinearModel::fit(TFullDataReader& reader){
 	for(int i = 0; i < this->_n_iterations; ++i){
+		printf("Iteration %d\n", i);
+
 		vector<DatasetEntry> batch = reader.next_batch();
 		if(!this->_run_iteration(batch)){
 			break;
 		}
 	}
+
+	printf("Fit done\n");
+}
+
+double TAbstractLinearModel::predict_one(DatasetEntry& entry){
+	return this->_predict_one(entry);
+}
+
+vector<double> TAbstractLinearModel::predict(vector<DatasetEntry>& dataset){
+	vector<double> predictions;
+	predictions.reserve(dataset.size());
+
+	for(DatasetEntry& entry: dataset){
+		predictions.push_back(this->predict_one(entry));
+	}
+
+	return predictions;
 }

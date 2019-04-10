@@ -50,7 +50,7 @@ public:
 	int _n_entries;
 	int _n_features;
 
-	TAbstractDataReader(char * path, bool is_class_at_the_end = true);
+	TAbstractDataReader(string path, bool is_class_at_the_end = true);
 	~TAbstractDataReader();
 
 	// To know, whether private self.inf has been opened successfully
@@ -74,9 +74,10 @@ protected:
 public:
 	vector<DatasetEntry> dataset;
 
-	TFullDataReader(char * path, bool is_class_at_the_end);
+	TFullDataReader(string path, bool is_class_at_the_end);
 
 	vector<DatasetEntry> next_batch(size_t size = 32);
+	vector<double> get_labels();
 
 	// Load full dataset in self.dataset
 	void load();

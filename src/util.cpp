@@ -31,27 +31,26 @@ void _copy(const vector<double>& src, vector<double>& dst){
 	}
 }
 
-vector<double> grad(vector<double>& w, DatasetEntry& x, double reg){
-	/*
-	*	-y * x * (1. - 1. / (1. + exp(-y * dot(w, x)))) + reg * w
-	*/
-	vector<double> result(w.size(), 0.0);
+void _dot(const vector<double>& v1, const vector<double>& v2, vector<double>& to_store){
+	for(size_t i = 0; i < v1.size(); ++i){
+		to_store[i] = v1[i] * v2[i];
+	}
+}
 
-	// TODO
-
+double _sum(const vector<double>& v){
+	double result = 0.0;
+	for(size_t i = 0; i < v.size(); ++i){
+		result += v[i];
+	}
 	return result;
 }
 
-vector<double> batch_grad(vector<double>& w, vector<DatasetEntry>& batch, double reg){
-	/*
-	*	mean([grad(w, x, reg) for x in batch], axis=0)
-	*/
-	vector<double> result(w.size(), 0.0);
-
-	for(DatasetEntry& x : batch){
-		_add(result, grad(w, x, reg));
+double _accuracy(const vector<double>& pred, const vector<double>& labels){
+	int correct = 0;
+	for(size_t i = 0; i < pred.size(); ++i){
+		if(int(pred[i]) == int(labels[i])){
+			correct += 1;
+		}
 	}
-
-	_div(result, static_cast<int>(batch.size()));
-	return result;
+	return 100.0 * correct / pred.size();
 }
