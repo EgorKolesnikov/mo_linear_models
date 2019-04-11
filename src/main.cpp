@@ -11,32 +11,58 @@ using std::cout;
 
 
 int _run_sgd(const ArgWrap& args){
-	printf("Running sgd\n");
+	printf("Running SGD\n");
 
 	TFullDataReader reader(args.data_path, true);
 	if(!reader.is_open()){
-		printf("File '%s' not open\n", args.data_path.c_str());
+		printf(" * SGD::FileLoad. File '%s' not open\n", args.data_path.c_str());
 		return 1;
+	} else{
+		printf(" * SGD::FileLoad. Loading dataset '%s'\n", args.data_path.c_str());
+		reader.load();
+		printf(" * SGD::FileLoad. Loaded %d dataset objects\n", int(reader.dataset.size()));
 	}
 
-	reader.load();
-	printf("Loaded %d dataset objects\n", int(reader.dataset.size()));
+	int n_iterations = 50000;
+	double learning_rate = 0.001;
+	double learning_rate_decay = 1.0;
 	
 	if(args.stage == Stage::train){
-		printf(" * Trainig SGD\n");
-		SgdClassification sgd(reader._n_features, 5, 0.01, 1.0);
-		sgd.fit(reader);
+		if(args.task_type == TaskType::classification){
+			printf(" * SGD::Classification::TRAIN. Fit LogisticRegressionModel\n");
+			LogisticRegressionModel log_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay);
+			log_reg.fit(reader);
 
-		printf(" * Saving model to '%s'\n", args.model_path.c_str());
-		sgd.save(args.model_path);
+			printf(" * SGD::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+			log_reg.save(args.model_path);
+		} else {
+			printf(" * SGD::Regression::TRAIN. Fit LinearRegressionModel\n");
+			LinearRegressionModel lin_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay);
+			lin_reg.fit(reader);
+
+			printf(" * SGD::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+			lin_reg.save(args.model_path);
+		}
 	} else {
-		printf(" * Loading model\n");
-		SgdClassification sgd(reader._n_features, 5, 0.01, 1.0);
-		sgd.load(args.model_path);
+		if(args.task_type == TaskType::classification){
+			printf(" * SGD::Classification::TEST. Loading LogisticRegressionModel\n");
+			LogisticRegressionModel log_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay);
+			log_reg.load(args.model_path);
 
-		printf(" * Predicting and evaluating\n");
-		double res = sgd.evaluate(reader.dataset);
-		printf(" * Result : %.2f\n", res);
+			printf(" * SGD::Classification::TEST. Predicting and evaluating\n");
+			double res = log_reg.evaluate(reader.dataset);
+			
+			printf(" * SGD::Classification::TEST. Result : %.5f\n", res);
+		} else {
+			printf(" * SGD::Regression::TEST. Loading LinearRegressionModel\n");
+			LinearRegressionModel lin_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay);
+			lin_reg.load(args.model_path);
+
+			printf(" * SGD::Regression::TEST. Predicting and evaluating\n");
+			double res = lin_reg.evaluate(reader.dataset);
+
+			printf(" * SGD::Regression::TEST. Result : %.5f\n", res);
+		}
 	}
 
 	printf("All done\n");

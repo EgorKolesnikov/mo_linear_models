@@ -17,7 +17,7 @@ using std::showpoint;
 using std::setprecision;
 
 
-class TAbstractLinearModel {
+class AbstractLinearModel {
 
 protected:
 	// Model params
@@ -31,17 +31,15 @@ protected:
 	vector<double> w_cur;
 
 	// Model specific
-	virtual void _gradient(DatasetEntry& entry, vector<double>& to_store) = 0;
-	virtual void _gradient_batch(vector<DatasetEntry>& batch, vector<double>& to_store) = 0;
-	virtual void _update_rule(vector<DatasetEntry>& batch) = 0;
-	virtual double _predict_one(DatasetEntry& entry) = 0;
+	virtual void _update_w(vector<DatasetEntry>& batch) = 0;
 
+	virtual double _evaluate_one(DatasetEntry& entry);
 	virtual void _update_state();
 	virtual bool _stop_rule();
 	virtual bool _run_iteration(vector<DatasetEntry>& batch);
 
 public:
-	TAbstractLinearModel(
+	AbstractLinearModel(
 		int n_features
 		, int _n_iterations
 		, double _learning_rate
@@ -54,7 +52,7 @@ public:
 
 	virtual void fit(TFullDataReader&);
 	
-	virtual double predict_one(DatasetEntry&);
+	virtual double predict_one(DatasetEntry&) = 0;
 	virtual vector<double> predict(vector<DatasetEntry>&);
-	virtual double evaluate(vector<DatasetEntry>&);
+	virtual double evaluate(vector<DatasetEntry>&) = 0;
 };

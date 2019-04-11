@@ -1,7 +1,7 @@
 #include "base.h"
 
 
-TAbstractLinearModel::TAbstractLinearModel(
+AbstractLinearModel::AbstractLinearModel(
 	int n_features = 0
 	, int n_iterations = 5
 	, double learning_rate = 0.01
@@ -17,16 +17,25 @@ TAbstractLinearModel::TAbstractLinearModel(
 	, w_cur(n_features + 1, 0.0)
 { }
 
-void TAbstractLinearModel::_update_state(){
+double AbstractLinearModel::_evaluate_one(DatasetEntry& entry){
+	double pred = 0.0;
+	for(int i = 0; i < this->_n_features; ++i){
+		pred += entry.x[i] * this->w_prev[i];
+	}
+	pred += 1.0 * this->w_prev.back();
+	return pred;
+}
+
+void AbstractLinearModel::_update_state(){
 	this->_learning_rate /= this->_learning_rate_decay;
 }
 
-bool TAbstractLinearModel::_stop_rule(){
+bool AbstractLinearModel::_stop_rule(){
 	return false;
 }
 
-bool TAbstractLinearModel::_run_iteration(vector<DatasetEntry>& batch){
-	this->_update_rule(batch);
+bool AbstractLinearModel::_run_iteration(vector<DatasetEntry>& batch){
+	this->_update_w(batch);
 
 	if(this->_stop_rule()){
 		return false;
@@ -36,7 +45,7 @@ bool TAbstractLinearModel::_run_iteration(vector<DatasetEntry>& batch){
 	return true;
 }
 
-void TAbstractLinearModel::save(const string& path){
+void AbstractLinearModel::save(const string& path){
 	ofstream outf(path);
 	outf << fixed << showpoint << setprecision(5);
 
@@ -48,7 +57,7 @@ void TAbstractLinearModel::save(const string& path){
 	outf.close();
 }
 
-void TAbstractLinearModel::load(const string& path){
+void AbstractLinearModel::load(const string& path){
 	ifstream inf(path);
 
 	this->w_prev = vector<double>(this->_n_features + 1, 0.0);
@@ -65,28 +74,22 @@ void TAbstractLinearModel::load(const string& path){
 	inf.close();
 }
 
-vector<double> TAbstractLinearModel::get_hyperplane(){
+vector<double> AbstractLinearModel::get_hyperplane(){
 	return this->w_cur;
 }
 
-void TAbstractLinearModel::fit(TFullDataReader& reader){
+void AbstractLinearModel::fit(TFullDataReader& reader){
 	for(int i = 0; i < this->_n_iterations; ++i){
-		printf("Iteration %d\n", i);
+		// printf("Iteration %d\n", i);
 
 		vector<DatasetEntry> batch = reader.next_batch();
 		if(!this->_run_iteration(batch)){
 			break;
 		}
 	}
-
-	printf("Fit done\n");
 }
 
-double TAbstractLinearModel::predict_one(DatasetEntry& entry){
-	return this->_predict_one(entry);
-}
-
-vector<double> TAbstractLinearModel::predict(vector<DatasetEntry>& dataset){
+vector<double> AbstractLinearModel::predict(vector<DatasetEntry>& dataset){
 	vector<double> predictions;
 	predictions.reserve(dataset.size());
 

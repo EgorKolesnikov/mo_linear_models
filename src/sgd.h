@@ -1,20 +1,62 @@
 #pragma once
 
+#include <math.h>
+#include <cmath>
+
 #include "base.h"
 
 
-class SgdClassification : public TAbstractLinearModel {
+class AbstractSgdModel : public AbstractLinearModel {
 
 protected:
-	void _gradient(DatasetEntry& entry, vector<double>& to_store);
-	void _gradient_batch(vector<DatasetEntry>& batch, vector<double>& to_store);
-	void _update_rule(vector<DatasetEntry>& batch);
-	double _predict_one(DatasetEntry& entry);
+	// Model specific
+	virtual double _gradient_one(DatasetEntry& entry) = 0;
+
+	virtual double _predict_one(DatasetEntry& entry);
+	virtual void _update_w_one(DatasetEntry& entry);
+	virtual void _update_w(vector<DatasetEntry>& batch);
 
 public:
 	vector<double> temp;
 
-	SgdClassification(
+	AbstractSgdModel(
+		int n_features
+		, int _n_iterations
+		, double _learning_rate
+		, double learning_rate_decay
+	);
+
+	virtual double predict_one(DatasetEntry&);
+	virtual double evaluate(vector<DatasetEntry>&) = 0;
+};
+
+
+class LogisticRegressionModel : public AbstractSgdModel {
+
+protected:
+	virtual double _predict_one(DatasetEntry& entry);
+	virtual double _gradient_one(DatasetEntry& entry);
+
+public:
+	LogisticRegressionModel(
+		int n_features
+		, int _n_iterations
+		, double _learning_rate
+		, double learning_rate_decay
+	);
+
+	virtual double predict_one(DatasetEntry&);
+	double evaluate(vector<DatasetEntry>&);
+};
+
+
+class LinearRegressionModel : public AbstractSgdModel {
+
+protected:
+	virtual double _gradient_one(DatasetEntry& entry);
+
+public:
+	LinearRegressionModel(
 		int n_features
 		, int _n_iterations
 		, double _learning_rate

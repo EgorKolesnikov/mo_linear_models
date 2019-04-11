@@ -3,59 +3,111 @@
 #include "util.h"
 
 
-SgdClassification::SgdClassification(
+AbstractSgdModel::AbstractSgdModel(
 	int n_features = 0
 	, int n_iterations = 5
 	, double learning_rate = 0.01
 	, double learning_rate_decay = 1.0
 )
-	: TAbstractLinearModel(n_features, n_iterations, learning_rate, learning_rate_decay)
+	: AbstractLinearModel(n_features, n_iterations, learning_rate, learning_rate_decay)
 	, temp(_n_features + 1, 0.0)
 { }
 
-
-void SgdClassification::_gradient(DatasetEntry& entry, vector<double>& to_store){
-
+double AbstractSgdModel::_predict_one(DatasetEntry& entry){
+	return AbstractSgdModel::_evaluate_one(entry);
 }
 
-
-void SgdClassification::_gradient_batch(vector<DatasetEntry>& batch, vector<double>& to_store){
-	
+double AbstractSgdModel::predict_one(DatasetEntry& entry){
+	return this->_predict_one(entry);
 }
 
+void AbstractSgdModel::_update_w_one(DatasetEntry& entry){
+	double grad = this->_gradient_one(entry);
+	for(int i = 0; i < this->_n_features; ++i){
+		this->w_cur[i] = this->w_prev[i] + this->_learning_rate * grad * entry.x[i];
+	}
+	this->w_cur[this->_n_features] = this->w_prev[this->_n_features] + this->_learning_rate * grad * 1.0;
+}
 
-void SgdClassification::_update_rule(vector<DatasetEntry>& batch){
-	/*
-	*	self.w = self.w - self.lr * self._batch_grad(batch);
-	*/
-
-	// save w_cur W to w_prev
+void AbstractSgdModel::_update_w(vector<DatasetEntry>& batch){
 	_copy(this->w_cur, this->w_prev);
-	
-	// evaluate gradient
-	std::fill(this->temp.begin(), this->temp.end(), 0.0);
-	this->_gradient_batch(batch, this->temp);
-
-	// apply w -= lr * grad
-	_mul(this->temp, this->_learning_rate);
-	_sub(this->w_cur, this->temp);
+	for(DatasetEntry& entry : batch){
+		this->_update_w_one(entry);
+	}
 }
 
+/*
+*	Logistic regression
+*/
 
-double SgdClassification::_predict_one(DatasetEntry& batch){
-	vector<double> t(batch.x.size());
-	_dot(batch.x, this->get_hyperplane(), t);
-	double v = _sum(t);
-	return v > 0 ? 1.0 : 0.0;
+LogisticRegressionModel::LogisticRegressionModel(
+	int n_features = 0
+	, int n_iterations = 5
+	, double learning_rate = 0.01
+	, double learning_rate_decay = 1.0
+)
+	: AbstractSgdModel(n_features, n_iterations, learning_rate, learning_rate_decay)
+{ }
+
+double LogisticRegressionModel::_predict_one(DatasetEntry& entry){
+	double pred = AbstractLinearModel::_evaluate_one(entry);
+	return 1.0 / (1.0 + exp(-pred));
 }
 
-double SgdClassification::evaluate(vector<DatasetEntry>& dataset){
-	vector<double> labels;
-	labels.reserve(dataset.size());
-	for(DatasetEntry& e : dataset){
-		labels.push_back(e.y);
+double LogisticRegressionModel::_gradient_one(DatasetEntry& entry){
+	double pred = this->_predict_one(entry);
+	double error = entry.y - pred;
+	return error;
+}
+
+double LogisticRegressionModel::predict_one(DatasetEntry& entry){
+	double val = this->_predict_one(entry);
+	return round(val);
+}
+
+double LogisticRegressionModel::evaluate(vector<DatasetEntry>& dataset){
+	int correct = 0;
+
+	for(DatasetEntry& entry : dataset){
+		double prediction = this->predict_one(entry);
+		if(prediction == entry.y){
+			correct += 1;
+		}
 	}
 
-	vector<double> predictions = this->predict(dataset);
-	return _accuracy(predictions, labels);
+	return 100.0 * correct / dataset.size();
+}
+
+
+/*
+*	Linear regression
+*/
+
+LinearRegressionModel::LinearRegressionModel(
+	int n_features = 0
+	, int n_iterations = 5
+	, double learning_rate = 0.01
+	, double learning_rate_decay = 1.0
+)
+	: AbstractSgdModel(n_features, n_iterations, learning_rate, learning_rate_decay)
+{ }
+
+double LinearRegressionModel::_gradient_one(DatasetEntry& entry){
+	double pred = this->_predict_one(entry);
+	double error = (pred - entry.y);
+	double grad = error;
+	return -grad;
+}
+
+double LinearRegressionModel::evaluate(vector<DatasetEntry>& dataset){
+	double mse = 0;
+
+	for(DatasetEntry& entry : dataset){
+		double prediction = this->predict_one(entry);
+		double error = (prediction - entry.y);
+		double loss = error * error;
+		mse += loss;
+	}
+
+	return mse;
 }

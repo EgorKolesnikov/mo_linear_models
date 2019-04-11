@@ -44,13 +44,3 @@ double _sum(const vector<double>& v){
 	}
 	return result;
 }
-
-double _accuracy(const vector<double>& pred, const vector<double>& labels){
-	int correct = 0;
-	for(size_t i = 0; i < pred.size(); ++i){
-		if(int(pred[i]) == int(labels[i])){
-			correct += 1;
-		}
-	}
-	return 100.0 * correct / pred.size();
-}
