@@ -5,6 +5,7 @@
 #include "args.h"
 #include "sgd.h"
 #include "util.h"
+#include "adagrad.h"
 
 using std::string;
 using std::cout;
@@ -71,7 +72,61 @@ int _run_sgd(const ArgWrap& args){
 
 int _run_adagrad(const ArgWrap& args){
 	printf("Running adagrad\n");
-	return 0;
+    TFullDataReader reader(args.data_path, true);
+    if(!reader.is_open()){
+        printf(" * Adagrad::FileLoad. File '%s' not open\n", args.data_path.c_str());
+        return 1;
+    } else{
+        printf(" * Adagrad::FileLoad. Loading dataset '%s'\n", args.data_path.c_str());
+        reader.load();
+        printf(" * Adagrad::FileLoad. Loaded %d dataset objects\n", int(reader.dataset.size()));
+    }
+
+    int n_iterations = 50000;
+    double learning_rate = 0.01;
+    double learning_rate_decay = 1.0;
+    double eps = 0.01;
+
+    if(args.stage == Stage::train){
+        if(args.task_type == TaskType::classification){
+            printf(" * Adagrad::Classification::TRAIN. Fit LogisticRegressionModel\n");
+            LogisticRegressionModelForAdagrad log_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay, eps);
+            log_reg.fit(reader);
+
+            printf(" * Adagrad::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+            log_reg.save(args.model_path);
+        } else {
+            printf(" * Adagrad::Regression::TRAIN. Fit LinearRegressionModel\n");
+            LinearRegressionModelForAdagrad lin_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay, eps);
+            lin_reg.fit(reader);
+
+            printf(" * Adagrad::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+            lin_reg.save(args.model_path);
+        }
+    } else {
+        if(args.task_type == TaskType::classification){
+            printf(" * Adagrad::Classification::TEST. Loading LogisticRegressionModel\n");
+            LogisticRegressionModelForAdagrad log_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay, eps);
+            log_reg.load(args.model_path);
+
+            printf(" * Adagrad::Classification::TEST. Predicting and evaluating\n");
+            double res = log_reg.evaluate(reader.dataset);
+
+            printf(" * Adagrad::Classification::TEST. Result : %.5f\n", res);
+        } else {
+            printf(" * Adagrad::Regression::TEST. Loading LinearRegressionModel\n");
+            LinearRegressionModelForAdagrad lin_reg(reader._n_features, n_iterations, learning_rate, learning_rate_decay, eps);
+            lin_reg.load(args.model_path);
+
+            printf(" * Adagrad::Regression::TEST. Predicting and evaluating\n");
+            double res = lin_reg.evaluate(reader.dataset);
+
+            printf(" * Adagrad::Regression::TEST. Result : %.5f\n", res);
+        }
+    }
+
+    printf("All done\n");
+    return 0;
 }
 
 int _run_ftrl_proximal(const ArgWrap& args){
