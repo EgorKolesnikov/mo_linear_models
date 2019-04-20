@@ -65,17 +65,22 @@ double LogisticRegressionModel::predict_one(DatasetEntry& entry){
 	return round(val);
 }
 
-double LogisticRegressionModel::evaluate(vector<DatasetEntry>& dataset){
+double LogisticRegressionModel::evaluate(TFullDataReader& reader){
 	int correct = 0;
 
-	for(DatasetEntry& entry : dataset){
-		double prediction = this->predict_one(entry);
-		if(prediction == entry.y){
-			correct += 1;
-		}
-	}
+    vector<DatasetEntry> batch;
+    long dataset_size = 0;
+    while ((batch = reader.next_batch()).size() > 0) {
+        dataset_size += batch.size();
+        for (DatasetEntry &entry : batch) {
+            double prediction = this->predict_one(entry);
+            if (prediction == entry.y) {
+                correct += 1;
+            }
+        }
+    }
 
-	return 100.0 * correct / dataset.size();
+	return 100.0 * correct / dataset_size;
 }
 
 
@@ -99,15 +104,19 @@ double LinearRegressionModel::_gradient_one(DatasetEntry& entry){
 	return -grad;
 }
 
-double LinearRegressionModel::evaluate(vector<DatasetEntry>& dataset){
+double LinearRegressionModel::evaluate(TFullDataReader& reader){
 	double mse = 0;
 
-	for(DatasetEntry& entry : dataset){
-		double prediction = this->predict_one(entry);
-		double error = (prediction - entry.y);
-		double loss = error * error;
-		mse += loss;
-	}
+
+    vector<DatasetEntry> batch;
+	while ((batch = reader.next_batch()).size() > 0) {
+        for (DatasetEntry &entry : batch) {
+            double prediction = this->predict_one(entry);
+            double error = (prediction - entry.y);
+            double loss = error * error;
+            mse += loss;
+        }
+    }
 
 	return mse;
 }

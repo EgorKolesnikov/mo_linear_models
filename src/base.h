@@ -54,5 +54,5 @@ public:
 	
 	virtual double predict_one(DatasetEntry&) = 0;
 	virtual vector<double> predict(vector<DatasetEntry>&);
-	virtual double evaluate(vector<DatasetEntry>&) = 0;
+	virtual double evaluate(TFullDataReader&) = 0;
 };

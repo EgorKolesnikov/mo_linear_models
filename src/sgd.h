@@ -27,7 +27,7 @@ public:
 	);
 
 	virtual double predict_one(DatasetEntry&);
-	virtual double evaluate(vector<DatasetEntry>&) = 0;
+	virtual double evaluate(TFullDataReader&) = 0;
 };
 
 
@@ -46,7 +46,7 @@ public:
 	);
 
 	virtual double predict_one(DatasetEntry&);
-	double evaluate(vector<DatasetEntry>&);
+	double evaluate(TFullDataReader&);
 };
 
 
@@ -63,5 +63,5 @@ public:
 		, double learning_rate_decay
 	);
 
-	double evaluate(vector<DatasetEntry>&);
+	double evaluate(TFullDataReader&);
 };

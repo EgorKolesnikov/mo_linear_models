@@ -99,11 +99,14 @@ vector<DatasetEntry> TFullDataReader::next_batch(size_t size){
 	vector<DatasetEntry> batch;
 	batch.reserve(size);
 	
-	while(batch.size() < size){
-		batch.push_back(this->dataset[this->_iter++]);
+	while(batch.size() < size && this->inf >> this->_line){
+        if(this->_line.empty()){
+            break;
+        }
+        batch.push_back(DatasetEntry(this->_line, this->_is_class_at_the_end));
 		this->_iter %= this->_n_entries;
 	}
-
+    this->_restart();
 	return batch;
 }
 

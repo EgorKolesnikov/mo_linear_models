@@ -20,7 +20,7 @@ int _run_sgd(const ArgWrap& args){
 		return 1;
 	} else{
 		printf(" * SGD::FileLoad. Loading dataset '%s'\n", args.data_path.c_str());
-		reader.load();
+		//reader.load();
 		printf(" * SGD::FileLoad. Loaded %d dataset objects\n", int(reader.dataset.size()));
 	}
 
@@ -51,7 +51,7 @@ int _run_sgd(const ArgWrap& args){
 			log_reg.load(args.model_path);
 
 			printf(" * SGD::Classification::TEST. Predicting and evaluating\n");
-			double res = log_reg.evaluate(reader.dataset);
+			double res = log_reg.evaluate(reader);
 			
 			printf(" * SGD::Classification::TEST. Result : %.5f\n", res);
 		} else {
@@ -60,7 +60,7 @@ int _run_sgd(const ArgWrap& args){
 			lin_reg.load(args.model_path);
 
 			printf(" * SGD::Regression::TEST. Predicting and evaluating\n");
-			double res = lin_reg.evaluate(reader.dataset);
+			double res = lin_reg.evaluate(reader);
 
 			printf(" * SGD::Regression::TEST. Result : %.5f\n", res);
 		}
@@ -78,7 +78,7 @@ int _run_adagrad(const ArgWrap& args){
         return 1;
     } else{
         printf(" * Adagrad::FileLoad. Loading dataset '%s'\n", args.data_path.c_str());
-        reader.load();
+        //reader.load();
         printf(" * Adagrad::FileLoad. Loaded %d dataset objects\n", int(reader.dataset.size()));
     }
 
@@ -110,7 +110,7 @@ int _run_adagrad(const ArgWrap& args){
             log_reg.load(args.model_path);
 
             printf(" * Adagrad::Classification::TEST. Predicting and evaluating\n");
-            double res = log_reg.evaluate(reader.dataset);
+            double res = log_reg.evaluate(reader);
 
             printf(" * Adagrad::Classification::TEST. Result : %.5f\n", res);
         } else {
@@ -119,7 +119,7 @@ int _run_adagrad(const ArgWrap& args){
             lin_reg.load(args.model_path);
 
             printf(" * Adagrad::Regression::TEST. Predicting and evaluating\n");
-            double res = lin_reg.evaluate(reader.dataset);
+            double res = lin_reg.evaluate(reader);
 
             printf(" * Adagrad::Regression::TEST. Result : %.5f\n", res);
         }
