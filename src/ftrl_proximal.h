@@ -10,8 +10,8 @@
 class LogisticRegressionModelForFtrlProximal : public LogisticRegressionModel {
 
 protected:
-    virtual void _update_w_one(DatasetEntry& entry);
-    virtual void _update_w(vector<DatasetEntry>& batch);
+    virtual void _update_w_one_direct(DatasetEntry& entry);
+    virtual void _update_w_one_cache(DatasetEntry& entry, int idx_in_batch);
 
 public:
     vector<double> temp;
@@ -30,8 +30,8 @@ public:
 class LinearRegressionModelForFtrlProximal : public LinearRegressionModel {
 
 protected:
-    virtual void _update_w_one(DatasetEntry& entry);
-    virtual void _update_w(vector<DatasetEntry>& batch);
+    virtual void _update_w_one_direct(DatasetEntry& entry);
+    virtual void _update_w_one_cache(DatasetEntry& entry, int idx_in_batch);
 
 public:
     vector<double> temp;

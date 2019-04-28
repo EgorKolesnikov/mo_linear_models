@@ -34,7 +34,14 @@ bool AbstractLinearModel::_stop_rule(){
 	return false;
 }
 
+void AbstractLinearModel::_update_w(vector<DatasetEntry>& batch){
+	for(size_t i = 0; i < batch.size(); ++i){
+		this->_update_w_one_direct(batch[i]);
+	}
+}
+
 bool AbstractLinearModel::_run_iteration(vector<DatasetEntry>& batch){
+	_copy(this->w_cur, this->w_prev);
 	this->_update_w(batch);
 
 	if(this->_stop_rule()){
@@ -78,14 +85,66 @@ vector<double> AbstractLinearModel::get_hyperplane(){
 	return this->w_cur;
 }
 
-void AbstractLinearModel::fit(TFullDataReader& reader){
+void AbstractLinearModel::fit(TFullDataReader& reader, int batch_size){
+	this->parallel_batch_entries = vector<vector<double>>(batch_size, vector<double>(this->_n_features + 1, 0.0));
+	this->parallel_batch_combine = vector<double>(this->_n_features + 1, 0.0);
+
 	for(int i = 0; i < this->_n_iterations; ++i){
 		// printf("Iteration %d\n", i);
 
-		vector<DatasetEntry> batch = reader.next_batch();
+		vector<DatasetEntry> batch = reader.next_batch(batch_size);
+
+		if(batch.size() == 0){
+			// printf("WARNING: got an empty batch\n");
+			continue;
+		}
+
 		if(!this->_run_iteration(batch)){
 			break;
 		}
+	}
+}
+
+void AbstractLinearModel::fit_parallel(TFullDataReader& reader, int batch_size, int num_threads){
+	this->parallel_batch_entries = vector<vector<double>>(batch_size, vector<double>(this->_n_features + 1, 0.0));
+	this->parallel_batch_combine = vector<double>(this->_n_features + 1, 0.0);
+
+	for(int i = 0; i < this->_n_iterations; ++i){
+		// printf("Iteration %d\n", i);
+
+		vector<DatasetEntry> batch = reader.next_batch(batch_size);
+
+		if(batch.size() == 0){
+			// printf("WARNING: got an empty batch\n");
+			continue;
+		}
+
+		for(int j = 0; j < this->_n_features + 1; ++j){
+			this->parallel_batch_combine[j] = 0.0;
+		}
+
+		_copy(this->w_cur, this->w_prev);
+
+		#pragma omp parallel for num_threads(num_threads) 
+		for(size_t i = 0; i < batch.size(); ++i){
+			this->_update_w_one_cache(batch[i], i);
+		}
+
+		for(size_t i = 0; i < batch.size(); ++i){
+			for(int j = 0; j < this->_n_features + 1; ++j){
+				this->parallel_batch_combine[j] += this->parallel_batch_entries[i][j];
+			}
+		}
+
+		for(int j = 0; j < this->_n_features + 1; ++j){
+			this->w_cur[j] = this->w_prev[j] + this->parallel_batch_combine[j] / batch.size();
+		}
+
+		if(this->_stop_rule()){
+			break;
+		}
+
+		this->_update_state();
 	}
 }
 

@@ -16,6 +16,7 @@ using std::ifstream;
 using std::istringstream;
 using std::shuffle;
 using std::default_random_engine;
+using std::ios;
 
 
 struct DatasetEntry {
@@ -37,6 +38,7 @@ class TAbstractDataReader{
 	*	For now is not final, only for dummy one.
 	*/
 protected:
+	string path;
 	ifstream inf;
 	string _line;
 
@@ -45,15 +47,18 @@ public:
 	// of the file line. If false - at the beginning
 	bool _is_class_at_the_end;
 
+	bool _is_circular;
+
 	// First line of input file should contain number of lines (dataset entries)
 	// and number of features. Expecting simlpe csv file without header.
 	int _n_entries;
 	int _n_features;
 
-	TAbstractDataReader(string path, bool is_class_at_the_end = true);
+	TAbstractDataReader(string path, bool is_class_at_the_end = true, bool is_circular = false);
 	~TAbstractDataReader();
 
 	// To know, whether private self.inf has been opened successfully
+	void to_the_begining();
 	bool is_open();
 
 	virtual vector<DatasetEntry> next_batch(size_t size = 32) = 0;
@@ -74,7 +79,7 @@ protected:
 public:
 	vector<DatasetEntry> dataset;
 
-	TFullDataReader(string path, bool is_class_at_the_end);
+	TFullDataReader(string path, bool is_class_at_the_end = true, bool is_circular = false);
 
 	vector<DatasetEntry> next_batch(size_t size = 32);
 	vector<double> get_labels();

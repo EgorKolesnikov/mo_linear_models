@@ -10,7 +10,6 @@ AbstractSgdModel::AbstractSgdModel(
 	, double learning_rate_decay = 1.0
 )
 	: AbstractLinearModel(n_features, n_iterations, learning_rate, learning_rate_decay)
-	, temp(_n_features + 1, 0.0)
 { }
 
 double AbstractSgdModel::_predict_one(DatasetEntry& entry){
@@ -21,7 +20,7 @@ double AbstractSgdModel::predict_one(DatasetEntry& entry){
 	return this->_predict_one(entry);
 }
 
-void AbstractSgdModel::_update_w_one(DatasetEntry& entry){
+void AbstractSgdModel::_update_w_one_direct(DatasetEntry& entry){
 	double grad = this->_gradient_one(entry);
 	for(int i = 0; i < this->_n_features; ++i){
 		this->w_cur[i] = this->w_prev[i] + this->_learning_rate * grad * entry.x[i];
@@ -29,12 +28,14 @@ void AbstractSgdModel::_update_w_one(DatasetEntry& entry){
 	this->w_cur[this->_n_features] = this->w_prev[this->_n_features] + this->_learning_rate * grad * 1.0;
 }
 
-void AbstractSgdModel::_update_w(vector<DatasetEntry>& batch){
-	_copy(this->w_cur, this->w_prev);
-	for(DatasetEntry& entry : batch){
-		this->_update_w_one(entry);
+void AbstractSgdModel::_update_w_one_cache(DatasetEntry& entry, int idx_in_batch){
+	double grad = this->_gradient_one(entry);
+	for(int i = 0; i < this->_n_features; ++i){
+		this->parallel_batch_entries[idx_in_batch][i] = this->_learning_rate * grad * entry.x[i];
 	}
+	this->parallel_batch_entries[idx_in_batch][this->_n_features] = this->_learning_rate * grad * 1.0;
 }
+
 
 /*
 *	Logistic regression

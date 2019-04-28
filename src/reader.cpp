@@ -41,21 +41,30 @@ DatasetEntry::DatasetEntry(string& str, bool is_class_at_the_end){
 *	Abstract reader
 */
 
-TAbstractDataReader::TAbstractDataReader(string path, bool is_class_at_the_end)
-	: inf(path)
+TAbstractDataReader::TAbstractDataReader(string _path, bool is_class_at_the_end, bool is_circular)
+	: path(_path)
+	, inf(_path)
 	, _line("")
 	, _is_class_at_the_end(is_class_at_the_end)
+	, _is_circular(is_circular)
 	, _n_entries(0)
 	, _n_features(0)
 {
-	if(this->inf.is_open()){
-		this->inf >> this->_n_entries;
-		this->inf >> this->_n_features;
-	}
+	this->to_the_begining();
 }
 
 TAbstractDataReader::~TAbstractDataReader(){
 	this->inf.close();
+}
+
+void TAbstractDataReader::to_the_begining(){
+	if(this->inf.eof()){
+		this->inf.clear();
+		this->inf.seekg(0, ios::beg);
+	}
+
+	this->inf >> this->_n_entries;
+	this->inf >> this->_n_features;
 }
 
 bool TAbstractDataReader::is_open(){
@@ -67,8 +76,8 @@ bool TAbstractDataReader::is_open(){
 *	Full dataset reader
 */
 
-TFullDataReader::TFullDataReader(string path, bool is_class_at_the_end)
-	: TAbstractDataReader(path, is_class_at_the_end)
+TFullDataReader::TFullDataReader(string path, bool is_class_at_the_end, bool is_circular)
+	: TAbstractDataReader(path, is_class_at_the_end, is_circular)
 	, _iter(0)
 { 
 	this->dataset.reserve(this->_n_entries);
@@ -97,7 +106,7 @@ void TFullDataReader::load(){
 
 vector<DatasetEntry> TFullDataReader::next_batch(size_t size){
 	vector<DatasetEntry> batch;
-	batch.reserve(size);
+	batch.reserve(size);	
 	
 	while(batch.size() < size && this->inf >> this->_line){
         if(this->_line.empty()){
@@ -106,7 +115,11 @@ vector<DatasetEntry> TFullDataReader::next_batch(size_t size){
         batch.push_back(DatasetEntry(this->_line, this->_is_class_at_the_end));
 		this->_iter %= this->_n_entries;
 	}
-    this->_restart();
+    
+    if(this->inf.eof() && this->_is_circular){
+    	this->to_the_begining();
+    }
+
 	return batch;
 }
 

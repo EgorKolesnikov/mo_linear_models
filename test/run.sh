@@ -1,31 +1,20 @@
-function classification(){
-	USE_DATASET="classification.2d.small.linear_separable.txt"
+USE_DATASET="classification.3d.small.not_linear_separable.txt"
+TASK="classification"
 
-	echo
-	echo "--- Train"
-	echo
-	../bin/lm train sgd classification "./datasets/${USE_DATASET}" "./model.out"
+echo
+echo "--- Train sgd"
+../bin/lm train sgd "${TASK}" "./datasets/${USE_DATASET}" "./model.out"
+echo "--- Test sgd"
+../bin/lm test sgd "${TASK}" "./datasets/${USE_DATASET}" "./model.out"
 
-	echo
-	echo "--- Test"
-	echo
-	../bin/lm test sgd classification "./datasets/${USE_DATASET}" "./model.out"
-}
+# echo
+# echo "--- Train adagrad"
+# ../bin/lm train adagrad "${TASK}" "./datasets/${USE_DATASET}" "./model.out"
+# echo "--- Test adagrad"
+# ../bin/lm test adagrad "${TASK}" "./datasets/${USE_DATASET}" "./model.out"
 
-
-function regression(){
-	USE_DATASET="regression.1d.small.not_straight_line.txt"
-
-	echo
-	echo "--- Train"
-	echo
-	../bin/lm train sgd regression "./datasets/${USE_DATASET}" "./model.out"
-
-	echo
-	echo "--- Test"
-	echo
-	../bin/lm test sgd regression "./datasets/${USE_DATASET}" "./model.out"
-}
-
-
-classification
+# echo
+# echo "--- Train ftrl-proximal"
+# ../bin/lm train ftrl-proximal "${TASK}" "./datasets/${USE_DATASET}" "./model.out"
+# echo "--- Test ftrl-proximal"
+# ../bin/lm test ftrl-proximal "${TASK}" "./datasets/${USE_DATASET}" "./model.out"

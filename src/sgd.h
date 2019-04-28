@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <cmath>
+#include <omp.h>
 
 #include "base.h"
 
@@ -11,14 +12,12 @@ class AbstractSgdModel : public AbstractLinearModel {
 protected:
 	// Model specific
 	virtual double _gradient_one(DatasetEntry& entry) = 0;
-
 	virtual double _predict_one(DatasetEntry& entry);
-	virtual void _update_w_one(DatasetEntry& entry);
-	virtual void _update_w(vector<DatasetEntry>& batch);
+	
+	virtual void _update_w_one_direct(DatasetEntry& entry);
+	virtual void _update_w_one_cache(DatasetEntry& entry, int idx_in_batch);
 
 public:
-	vector<double> temp;
-
 	AbstractSgdModel(
 		int n_features
 		, int _n_iterations

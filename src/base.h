@@ -30,8 +30,13 @@ protected:
 	vector<double> w_prev;
 	vector<double> w_cur;
 
+	vector<vector<double>> parallel_batch_entries;
+	vector<double> parallel_batch_combine;
+
 	// Model specific
-	virtual void _update_w(vector<DatasetEntry>& batch) = 0;
+	virtual void _update_w_one_direct(DatasetEntry& entry) = 0;
+	virtual void _update_w_one_cache(DatasetEntry& entry, int idx_in_batch) = 0;
+	virtual void _update_w(vector<DatasetEntry>& batch);
 
 	virtual double _evaluate_one(DatasetEntry& entry);
 	virtual void _update_state();
@@ -50,7 +55,8 @@ public:
 	void load(const string& path);
 	vector<double> get_hyperplane();
 
-	virtual void fit(TFullDataReader&);
+	virtual void fit(TFullDataReader&, int batch_size = 64);
+	virtual void fit_parallel(TFullDataReader&, int batch_size = 64, int num_threads = 3);
 	
 	virtual double predict_one(DatasetEntry&) = 0;
 	virtual vector<double> predict(vector<DatasetEntry>&);
