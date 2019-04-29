@@ -17,22 +17,36 @@
 2) Вильчевский Константин - реализация ftrl-proximal
 3) Пиляк Ксения - реалиация adagrad, тестирование и сравнение с vowpal wabbit и liblinear
 
-## Как запустить проект
-1) Скачать репозиторий git clone https://github.com/EgorKolesnikov/mo_linear_models
-2) Сделать make
-3) Перейти в папку bin
-4) Выполнить<br>
+## Установка
+1) Скачать репозиторий <br>
+`git clone https://github.com/EgorKolesnikov/mo_linear_models`
+2) Перейти в корень репозитория и выполнить <br>
+`make`
+
+## Тесты
+Для быстрой проверки работы библиотеки можно запустить небольшие тесты через `./run.sh`, перейдя в папку `/test/`.<br>
+Запустятся тесты на классификацию и регрессию на небольших семплах. Датасеты содержат от 100 до 1000 элементов. 
+1) Классификация. Линейно разделимая выборка
+2) Классификация. Линейно неразделимя выборка
+3) Регрессия. Чистая прямая
+4) Регрессия. Прямая с небольшим jitter
+
+## Запуск библиотеки
+Бинарник лежит в `/bin/lm`. 
+
+Запуск:<br>
 `./lm <train|test> <ALGO> <TASK> <DATASET_FILE_PATH> <MODEL_PATH>`<br>
  `ALGO: 'sgd' | 'adagrad' | 'ftrl-proximal'`<br>
  `TASK: 'classification' | 'regression'`
-5) Файл с датасетом должен иметь следующий формат<br>
+
+Файл с датасетом должен иметь следующий формат<br>
    _n_entries n_features_<br>
    _feature1,feature2,...,feature_n,label_<br>
    ...
-6) Датасеты можно найти здесь:<br>
+
+Датасеты, на которых сранивалась работа с vw и liblinear можно найти здесь:<br>
 - https://drive.google.com/drive/folders/1YXj-cWoULh5UjMo3Yx5VKCxzljigK1-e?usp=sharing
 - https://drive.google.com/file/d/1AxsG1ZSwaKOdCRQI-dr_jaXf_9AaXK58/view?usp=sharing
-- в папке test
 
 ## Результаты работы утилиты
 Нами было произведено сравнение утилиты с библиотеками **vowpal wabbit** и **liblinear** 

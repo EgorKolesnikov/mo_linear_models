@@ -52,12 +52,11 @@ LinearRegressionModelForAdagrad::LinearRegressionModelForAdagrad(
 void LinearRegressionModelForAdagrad::_update_w_one_direct(DatasetEntry& entry){
     double grad = this->_gradient_one(entry);
     for(int i = 0; i < this->_n_features; ++i){
-        G[i] += grad * grad;
-        this->w_cur[i] = this->w_prev[i] + this->_learning_rate * grad * entry.x[i] / sqrt(G[i] + eps);
+        G[i] += (grad * entry.x[i]) * (grad * entry.x[i]);
+        this->w_cur[i] = this->w_prev[i] + this->_learning_rate * (grad * entry.x[i]) / sqrt(G[i] + eps);
     }
     G[this->_n_features] += grad * grad;
-    this->w_cur[this->_n_features] = this->w_prev[this->_n_features] +
-                                     this->_learning_rate * grad * 1.0 / sqrt(G[this->_n_features] + eps);
+    this->w_cur[this->_n_features] = this->w_prev[this->_n_features] + this->_learning_rate * grad * 1.0 / sqrt(G[this->_n_features] + eps);
 }
 
 void LinearRegressionModelForAdagrad::_update_w_one_cache(DatasetEntry& entry, int idx_in_batch){

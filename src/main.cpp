@@ -12,14 +12,14 @@ using std::string;
 using std::cout;
 
 
-const int N_ITERATIONS = 10000;
+const int N_ITERATIONS = 100000;
 const double LEARNING_RATE = 0.001;
 const double LEARNING_RATE_DECAY = 1.0;
 const bool IS_PARALLEL = false;
 
 
 int _run_sgd(const ArgWrap& args){
-	printf("Running SGD\n");
+	// printf("Running SGD\n");
 
 	TFullDataReader reader(args.data_path, true, true);
 	if(!reader.is_open()){
@@ -38,7 +38,7 @@ int _run_sgd(const ArgWrap& args){
                 log_reg.fit(reader, 1);
             }
 
-			printf(" * SGD::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+			// printf(" * SGD::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
 			log_reg.save(args.model_path);
 		} else {
 			printf(" * SGD::Regression::TRAIN. Fit LinearRegressionModel\n");
@@ -50,14 +50,14 @@ int _run_sgd(const ArgWrap& args){
                 lin_reg.fit(reader, 1);
             }
 
-			printf(" * SGD::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+			// printf(" * SGD::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
 			lin_reg.save(args.model_path);
 		}
 	} else {
         reader._is_circular = false;
 
 		if(args.task_type == TaskType::classification){
-			printf(" * SGD::Classification::TEST. Loading LogisticRegressionModel\n");
+			// printf(" * SGD::Classification::TEST. Loading LogisticRegressionModel\n");
 			LogisticRegressionModel log_reg(reader._n_features, N_ITERATIONS, LEARNING_RATE, LEARNING_RATE_DECAY);
 			log_reg.load(args.model_path);
 
@@ -66,7 +66,7 @@ int _run_sgd(const ArgWrap& args){
 			
 			printf(" * SGD::Classification::TEST. Result : %.5f\n", res);
 		} else {
-			printf(" * SGD::Regression::TEST. Loading LinearRegressionModel\n");
+			// printf(" * SGD::Regression::TEST. Loading LinearRegressionModel\n");
 			LinearRegressionModel lin_reg(reader._n_features, N_ITERATIONS, LEARNING_RATE, LEARNING_RATE_DECAY);
 			lin_reg.load(args.model_path);
 
@@ -77,12 +77,12 @@ int _run_sgd(const ArgWrap& args){
 		}
 	}
 
-	printf("All done\n");
+	// printf("All done\n");
 	return 0;
 }
 
 int _run_adagrad(const ArgWrap& args){
-	printf("Running adagrad\n");
+	// printf("Running adagrad\n");
 
     TFullDataReader reader(args.data_path, true, true);
     if(!reader.is_open()){
@@ -103,7 +103,7 @@ int _run_adagrad(const ArgWrap& args){
                 log_reg.fit(reader, 1);
             }
 
-            printf(" * Adagrad::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+            // printf(" * Adagrad::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
             log_reg.save(args.model_path);
         } else {
             printf(" * Adagrad::Regression::TRAIN. Fit LinearRegressionModel\n");
@@ -115,14 +115,14 @@ int _run_adagrad(const ArgWrap& args){
                 lin_reg.fit(reader, 1);
             }
 
-            printf(" * Adagrad::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+            // printf(" * Adagrad::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
             lin_reg.save(args.model_path);
         }
     } else {
         reader._is_circular = false;
 
         if(args.task_type == TaskType::classification){
-            printf(" * Adagrad::Classification::TEST. Loading LogisticRegressionModel\n");
+            // printf(" * Adagrad::Classification::TEST. Loading LogisticRegressionModel\n");
             LogisticRegressionModelForAdagrad log_reg(reader._n_features, N_ITERATIONS, LEARNING_RATE, LEARNING_RATE_DECAY, eps);
             log_reg.load(args.model_path);
 
@@ -131,7 +131,7 @@ int _run_adagrad(const ArgWrap& args){
 
             printf(" * Adagrad::Classification::TEST. Result : %.5f\n", res);
         } else {
-            printf(" * Adagrad::Regression::TEST. Loading LinearRegressionModel\n");
+            // printf(" * Adagrad::Regression::TEST. Loading LinearRegressionModel\n");
             LinearRegressionModelForAdagrad lin_reg(reader._n_features, N_ITERATIONS, LEARNING_RATE, LEARNING_RATE_DECAY, eps);
             lin_reg.load(args.model_path);
 
@@ -142,12 +142,12 @@ int _run_adagrad(const ArgWrap& args){
         }
     }
 
-    printf("All done\n");
+    // printf("All done\n");
     return 0;
 }
 
 int _run_ftrl_proximal(const ArgWrap& args){
-	printf("Running ftrl_proximal\n");
+	// printf("Running ftrl_proximal\n");
 
 	TFullDataReader reader(args.data_path, true, true);
     if(!reader.is_open()){
@@ -168,7 +168,7 @@ int _run_ftrl_proximal(const ArgWrap& args){
                 log_reg.fit(reader, 1);
             }
 
-            printf(" * FtrlProximal::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+            // printf(" * FtrlProximal::Classification::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
             log_reg.save(args.model_path);
         } else {
             printf(" * FtrlProximal::Regression::TRAIN. Fit LinearRegressionModel\n");
@@ -180,14 +180,14 @@ int _run_ftrl_proximal(const ArgWrap& args){
                 lin_reg.fit(reader, 1);
             }
 
-            printf(" * FtrlProximal::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
+            // printf(" * FtrlProximal::Regression::TRAIN. Saving model to '%s'\n", args.model_path.c_str());
             lin_reg.save(args.model_path);
         }
     } else {
         reader._is_circular = false;
 
         if(args.task_type == TaskType::classification){
-            printf(" * FtrlProximal::Classification::TEST. Loading LogisticRegressionModel\n");
+            // printf(" * FtrlProximal::Classification::TEST. Loading LogisticRegressionModel\n");
             LogisticRegressionModelForFtrlProximal log_reg(reader._n_features, N_ITERATIONS, LEARNING_RATE, LEARNING_RATE_DECAY, eps);
             log_reg.load(args.model_path);
 
@@ -196,7 +196,7 @@ int _run_ftrl_proximal(const ArgWrap& args){
 
             printf(" * FtrlProximal::Classification::TEST. Result : %.5f\n", res);
         } else {
-            printf(" * FtrlProximal::Regression::TEST. Loading LinearRegressionModel\n");
+            // printf(" * FtrlProximal::Regression::TEST. Loading LinearRegressionModel\n");
             LinearRegressionModelForFtrlProximal lin_reg(reader._n_features, N_ITERATIONS, LEARNING_RATE, LEARNING_RATE_DECAY, eps);
             lin_reg.load(args.model_path);
 
@@ -207,8 +207,7 @@ int _run_ftrl_proximal(const ArgWrap& args){
         }
     }
 
-    printf("All done\n");
-    
+    // printf("All done\n");
     return 0;
 }
 
