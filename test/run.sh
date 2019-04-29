@@ -1,6 +1,6 @@
 RUN_SGD=true
 RUN_ADAGRAD=true
-RUN_FTRL_PROXIMAL=false
+RUN_FTRL_PROXIMAL=true
 
 
 function _run_classification(){
