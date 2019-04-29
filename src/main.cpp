@@ -12,7 +12,7 @@ using std::string;
 using std::cout;
 
 
-const int N_ITERATIONS = 100000;
+const int N_ITERATIONS = 50000;
 const double LEARNING_RATE = 0.001;
 const double LEARNING_RATE_DECAY = 1.0;
 const bool IS_PARALLEL = false;

@@ -44,14 +44,16 @@
    _feature1,feature2,...,feature_n,label_<br>
    ...
 
-Датасеты, на которых сранивалась работа с vw и liblinear можно найти здесь:<br>
-- https://drive.google.com/drive/folders/1YXj-cWoULh5UjMo3Yx5VKCxzljigK1-e?usp=sharing
-- https://drive.google.com/file/d/1AxsG1ZSwaKOdCRQI-dr_jaXf_9AaXK58/view?usp=sharing
-
 ## Результаты работы утилиты
 Нами было произведено сравнение утилиты с библиотеками **vowpal wabbit** и **liblinear** 
 по производительности и по качеству обучения. В качестве данных для классификации был взят датасет
 avazu. Для регрессии был сгенерирован вручную.
+
+Датасеты, на которых сранивалась работа с vw и liblinear можно найти здесь:<br>
+- https://drive.google.com/drive/folders/1YXj-cWoULh5UjMo3Yx5VKCxzljigK1-e?usp=sharing
+- https://drive.google.com/file/d/1AxsG1ZSwaKOdCRQI-dr_jaXf_9AaXK58/view?usp=sharing
+
+
 * Классификация на датасете размером 1 000 000. Количество фичей 23<br>
 
 | Характеристика | Библиотека | sgd | adaptive | ftrl | other |
